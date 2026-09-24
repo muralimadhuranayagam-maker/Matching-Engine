@@ -29,9 +29,13 @@ class Settings(BaseSettings):
     SNAPSERVE_BASE_URL: str = os.getenv("SNAPSERVE_BASE_URL", "https://app.snapserve.ai/api")
 
     
+    # SnapServe AI Voice Agent Platform Settings
+    SNAPSERVE_API_KEY: str = os.getenv("SNAPSERVE_API_KEY", "")
+    SNAPSERVE_BASE_URL: str = os.getenv("SNAPSERVE_BASE_URL", "https://app.snapserve.ai/api")
+    
     # Embeddings Provider Settings
     EMBEDDING_PROVIDER: str = os.getenv("EMBEDDING_PROVIDER", "sentence-transformers")
-    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "all-mpnet-base-v2")
     
     # Weighted Scoring System Defaults (%)
     WEIGHT_SKILLS: float = 35.0

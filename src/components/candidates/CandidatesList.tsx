@@ -41,11 +41,13 @@ import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { candidateService, type CandidateItem, type CandidateMatchItem } from "../../services/candidateService";
 import { MatchDetailModal, type MatchDetailData } from "../matches/MatchDetailModal";
+import { CandidateDetailModal } from "./CandidateDetailModal";
 
 export function CandidatesList() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState<CandidateItem | null>(null);
+  const [selectedCandidateForDetail, setSelectedCandidateForDetail] = useState<CandidateItem | null>(null);
   const [isMatchesDrawerOpen, setIsMatchesDrawerOpen] = useState(false);
   const [activeMatchData, setActiveMatchData] = useState<MatchDetailData | null>(null);
   const [isRawJsonOpen, setIsRawJsonOpen] = useState(false);
@@ -151,6 +153,7 @@ export function CandidatesList() {
   };
 
   const handleOpenRawJson = (cand: CandidateItem) => {
+    setSelectedCandidateForDetail(cand);
     setRawJsonData(cand.profile);
     setIsRawJsonOpen(true);
   };
@@ -333,10 +336,28 @@ export function CandidatesList() {
                         aria-label={`Select candidate ${cand.candidate_id}`}
                       />
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700, fontFamily: "monospace", color: "primary.main" }}>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        fontFamily: "monospace",
+                        color: "primary.main",
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                      onClick={() => handleOpenRawJson(cand)}
+                    >
                       {cand.candidate_id}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{cand.name}</TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        "&:hover": { color: "primary.main" },
+                      }}
+                      onClick={() => handleOpenRawJson(cand)}
+                    >
+                      {cand.name}
+                    </TableCell>
                     <TableCell>
                       <Typography variant="body2">{cand.phone || "N/A"}</Typography>
                       <Typography variant="caption" color="text.secondary">{cand.email || ""}</Typography>
@@ -362,8 +383,12 @@ export function CandidatesList() {
                         >
                           Matches
                         </Button>
-                        <Tooltip title="View Profile JSON">
-                          <IconButton size="small" onClick={() => handleOpenRawJson(cand)}>
+                        <Tooltip title="View Filled Form & Stored JSON">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleOpenRawJson(cand)}
+                            sx={{ color: "text.secondary", "&:hover": { color: "primary.main" } }}
+                          >
                             <VisibilityIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -575,36 +600,12 @@ export function CandidatesList() {
         )}
       </Drawer>
 
-      {/* Raw Profile JSON Viewer (Requirement 55) */}
-      <Drawer
-        anchor="right"
+      {/* Candidate Profile Detail Modal: Filled Form on Left, Stored JSON on Right */}
+      <CandidateDetailModal
         open={isRawJsonOpen}
         onClose={() => setIsRawJsonOpen(false)}
-        slotProps={{ paper: { sx: { width: { xs: "100%", sm: 500 }, p: 3 } } }}
-      >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Stored Candidate Profile JSON
-          </Typography>
-          <IconButton onClick={() => setIsRawJsonOpen(false)}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-        <Divider sx={{ mb: 2 }} />
-        <Box
-          component="pre"
-          sx={{
-            p: 2,
-            borderRadius: 1.5,
-            bgcolor: "background.default",
-            overflow: "auto",
-            fontSize: "0.75rem",
-            fontFamily: "monospace",
-          }}
-        >
-          {JSON.stringify(rawJsonData, null, 2)}
-        </Box>
-      </Drawer>
+        candidate={selectedCandidateForDetail}
+      />
 
       {/* Detailed Match Breakdown & Evidence Modal */}
       <MatchDetailModal

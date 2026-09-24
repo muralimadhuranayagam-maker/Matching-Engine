@@ -9,6 +9,9 @@ import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 import { useCandidateIntake, shouldShowLineup, buildPayload, clearDraft } from "../../hooks/useCandidateIntake";
+import { useLiveIntakeSocket } from "../../hooks/useLiveIntakeSocket";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import PhoneInTalkIcon from "@mui/icons-material/PhoneInTalk";
 import type { CandidateIntakeSchema } from "../../schemas/candidateIntakeSchema";
 
 import { CandidateBasicDetails } from "./CandidateBasicDetails";
@@ -91,6 +94,24 @@ export function CandidateIntakeForm({ onNavigateTab }: CandidateIntakeFormProps)
   const queryClient = useQueryClient();
   const { form, mutation, persistDraft } = useCandidateIntake();
   const { control, reset, getValues, setValue, trigger } = form;
+
+  // Session ID for live SnapServe voice call correlation (passed via URL query ?session=... or default)
+  const [sessionId] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("session") || params.get("callId") || "live_candidate_call";
+    }
+    return "live_candidate_call";
+  });
+
+  const {
+    isConnected: isLiveConnected,
+    isSyncing: isLiveSyncing,
+  } = useLiveIntakeSocket({
+    sessionId,
+    form,
+    enabled: true,
+  });
 
   const [activeSection, setActiveSection] = useState("section-personal");
   const [submitted, setSubmitted] = useState(false);
@@ -298,6 +319,46 @@ export function CandidateIntakeForm({ onNavigateTab }: CandidateIntakeFormProps)
                 </Typography>
               </Box>
               <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+                {isLiveConnected ? (
+                  <Chip
+                    icon={
+                      <FiberManualRecordIcon
+                        sx={{
+                          fontSize: "10px !important",
+                          color: "#10b981 !important",
+                          animation: isLiveSyncing ? "pulse 1s infinite" : "none",
+                          "@keyframes pulse": {
+                            "0%": { opacity: 1, transform: "scale(1)" },
+                            "50%": { opacity: 0.3, transform: "scale(1.3)" },
+                            "100%": { opacity: 1, transform: "scale(1)" },
+                          },
+                        }}
+                      />
+                    }
+                    label={isLiveSyncing ? "AI Voice Updating..." : "SnapServe Call Live"}
+                    size="small"
+                    sx={{
+                      bgcolor: "rgba(16, 185, 129, 0.12)",
+                      color: "#34d399",
+                      border: "1px solid rgba(16, 185, 129, 0.3)",
+                      fontWeight: 700,
+                      fontSize: "0.75rem",
+                    }}
+                  />
+                ) : (
+                  <Chip
+                    icon={<PhoneInTalkIcon sx={{ fontSize: "13px !important", color: "#94a3b8 !important" }} />}
+                    label="Voice Auto-Fill Ready"
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      color: "#94a3b8",
+                      borderColor: "rgba(255, 255, 255, 0.15)",
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                    }}
+                  />
+                )}
                 <Button
                   size="small"
                   variant="outlined"

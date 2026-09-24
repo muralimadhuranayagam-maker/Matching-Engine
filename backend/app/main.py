@@ -30,11 +30,13 @@ app.add_middleware(
 
 # Include API Routers
 from backend.app.api.candidates import router as candidates_router
+from backend.app.api.live_intake import router as live_intake_router
 from backend.app.api.jobs import router as jobs_router
 from backend.app.api.matches import router as matches_router
 from backend.app.api.dashboard import router as dashboard_router
 
 app.include_router(candidates_router, prefix=settings.API_V1_STR)
+app.include_router(live_intake_router, prefix=settings.API_V1_STR)
 app.include_router(jobs_router, prefix=settings.API_V1_STR)
 app.include_router(matches_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router, prefix=settings.API_V1_STR)
