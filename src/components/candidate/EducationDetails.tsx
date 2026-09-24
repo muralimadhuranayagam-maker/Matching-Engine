@@ -27,7 +27,7 @@ export function EducationDetails({ control }: Props) {
   const gradGapReason = useWatch({ control, name: "education.graduation.gap_reason" });
 
   const ugPassingYear = useWatch({ control, name: "education.graduation.undergraduation.passing_year" });
-  const ugGapReason = useWatch({ control, name: "education.graduation.undergraduation.gap_reason" });
+
 
   // Parse years
   const tenthYear = parseInt(String(tenthPassingYear || "").trim(), 10);

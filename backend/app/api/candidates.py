@@ -158,3 +158,60 @@ def get_candidate_matches(candidate_id: str, db: Session = Depends(get_db)):
         "total_matches": len(results),
         "matches": results
     }
+
+from pydantic import BaseModel
+from backend.app.models.processing import MatchRun
+
+class BulkDeleteCandidatesRequest(BaseModel):
+    candidate_ids: List[str]
+
+@router.delete("/{candidate_id}")
+def delete_candidate(candidate_id: str, db: Session = Depends(get_db)):
+    """
+    Deletes a specific Candidate, associated match runs, and associated candidate matches.
+    """
+    c = db.query(Candidate).filter(Candidate.candidate_id == candidate_id).first()
+    if not c:
+        raise HTTPException(status_code=404, detail=f"Candidate {candidate_id} not found")
+
+    # 1. Delete associated candidate matches
+    db.query(CandidateJobMatch).filter(CandidateJobMatch.candidate_id == candidate_id).delete(synchronize_session=False)
+
+    # 2. Delete associated match runs
+    db.query(MatchRun).filter(MatchRun.candidate_id == candidate_id).delete(synchronize_session=False)
+
+    # 3. Delete Candidate record
+    db.delete(c)
+    db.commit()
+
+    return {
+        "status": "SUCCESS",
+        "message": f"Candidate {candidate_id} deleted successfully.",
+        "candidate_id": candidate_id
+    }
+
+@router.post("/bulk-delete")
+def bulk_delete_candidates(body: BulkDeleteCandidatesRequest, db: Session = Depends(get_db)):
+    """
+    Bulk deletes multiple Candidates, associated match runs, and candidate matches.
+    """
+    if not body.candidate_ids:
+        raise HTTPException(status_code=400, detail="No candidate IDs provided for deletion")
+
+    # 1. Delete associated candidate matches
+    db.query(CandidateJobMatch).filter(CandidateJobMatch.candidate_id.in_(body.candidate_ids)).delete(synchronize_session=False)
+
+    # 2. Delete associated match runs
+    db.query(MatchRun).filter(MatchRun.candidate_id.in_(body.candidate_ids)).delete(synchronize_session=False)
+
+    # 3. Delete Candidate records
+    deleted_count = db.query(Candidate).filter(Candidate.candidate_id.in_(body.candidate_ids)).delete(synchronize_session=False)
+    db.commit()
+
+    return {
+        "status": "SUCCESS",
+        "deleted_count": deleted_count,
+        "candidate_ids": body.candidate_ids,
+        "message": f"Successfully deleted {deleted_count} candidate(s)."
+    }
+

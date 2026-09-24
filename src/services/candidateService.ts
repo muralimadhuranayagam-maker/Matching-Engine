@@ -89,5 +89,30 @@ export const candidateService = {
     const res = await fetch(`${API_BASE_URL}/candidates/${candidateId}/match`, { method: "POST" });
     if (!res.ok) throw new Error("Failed to trigger candidate matching");
     return res.json();
+  },
+
+  async deleteCandidate(candidateId: string): Promise<{ status: string; message: string; candidate_id: string }> {
+    const res = await fetch(`${API_BASE_URL}/candidates/${candidateId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Failed to delete candidate" }));
+      throw new Error(err.detail || "Failed to delete candidate");
+    }
+    return res.json();
+  },
+
+  async bulkDeleteCandidates(candidateIds: string[]): Promise<{ status: string; deleted_count: number; candidate_ids: string[]; message: string }> {
+    const res = await fetch(`${API_BASE_URL}/candidates/bulk-delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ candidate_ids: candidateIds }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: "Failed to delete selected candidates" }));
+      throw new Error(err.detail || "Failed to delete selected candidates");
+    }
+    return res.json();
   }
 };
+

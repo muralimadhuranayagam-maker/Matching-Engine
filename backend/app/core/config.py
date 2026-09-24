@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     SARVAM_API_KEY: str = os.getenv("SARVAM_API_KEY", "")
     SARVAM_MODEL: str = os.getenv("SARVAM_MODEL", "sarvam-105b")
     SARVAM_API_URL: str = os.getenv("SARVAM_API_URL", "https://api.sarvam.ai/v1/chat/completions")
+
+    # SnapServe AI Voice Agent Settings
+    SNAPSERVE_API_KEY: str = os.getenv("SNAPSERVE_API_KEY", "")
+    SNAPSERVE_BASE_URL: str = os.getenv("SNAPSERVE_BASE_URL", "https://app.snapserve.ai/api")
+
     
     # Embeddings Provider Settings
     EMBEDDING_PROVIDER: str = os.getenv("EMBEDDING_PROVIDER", "sentence-transformers")
