@@ -1,0 +1,52 @@
+import { Grid } from "@mui/material";
+import { Controller, type Control } from "react-hook-form";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { parse, format, isValid } from "date-fns";
+import type { CandidateIntakeSchema } from "../../../schemas/candidateIntakeSchema";
+import { TextInput, SelectField, YesNoRadio, FormCard } from "../FormHelpers";
+import { ENGLISH_COMMUNICATION_OPTIONS } from "../../../config/options";
+
+interface Props { control: Control<CandidateIntakeSchema>; }
+export function ServingNotice({ control }: Props) {
+  return (
+    <FormCard title="Serving Notice Details">
+      <Grid container spacing={2.5}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TextInput name="serving_notice_details.serving_notice_skill" control={control} label="Current Skill" required />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <SelectField name="serving_notice_details.serving_notice_english_communication" control={control} label="English Communication" options={ENGLISH_COMMUNICATION_OPTIONS} required />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TextInput name="serving_notice_details.current_working_company" control={control} label="Current Company" required />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <Controller
+            name="serving_notice_details.last_working_day"
+            control={control}
+            render={({ field, fieldState }) => {
+              let val: Date | null = null;
+              if (field.value) { const p = parse(field.value, "dd-MM-yyyy", new Date()); val = isValid(p) ? p : null; }
+              return (
+                <DatePicker label="Last Working Day *" value={val}
+                  onChange={(d) => field.onChange(d && isValid(d) ? format(d, "dd-MM-yyyy") : "")}
+                  format="dd/MM/yyyy"
+                  slotProps={{ textField: { fullWidth: true, error: !!fieldState.error, helperText: fieldState.error?.message ?? "DD-MM-YYYY", inputRef: field.ref, onBlur: field.onBlur } }}
+                />
+              );
+            }}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TextInput name="serving_notice_details.fit_target_company" control={control} label="Fit Target Company" required />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TextInput name="serving_notice_details.fit_target_process" control={control} label="Fit Target Process" required />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <YesNoRadio name="serving_notice_details.reminder_job_available" control={control} label="Set Reminder When Job Available?" required />
+        </Grid>
+      </Grid>
+    </FormCard>
+  );
+}
