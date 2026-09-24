@@ -102,6 +102,73 @@ export const educationHistorySchema = z.object({
   twelfth: twelfthEducationSchema,
   diploma: diplomaEducationSchema,
   graduation: graduationEducationSchema,
+}).superRefine((data, ctx) => {
+  const tenthYear = parseInt(data.tenth?.passing_year || "", 10);
+  const twelfthYear = parseInt(data.twelfth?.passing_year || "", 10);
+  
+  // 10th to 12th gap check (standard 2 years)
+  if (!isNaN(tenthYear) && !isNaN(twelfthYear) && tenthYear >= 1970 && twelfthYear >= 1970) {
+    const gap = twelfthYear - tenthYear - 2;
+    if (gap > 0 && (!data.twelfth?.gap_reason || !data.twelfth.gap_reason.trim())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Education Gap Reason is required (${gap} year gap detected between 10th and 12th)`,
+        path: ["twelfth", "gap_reason"],
+      });
+    }
+  }
+
+  // Diploma gap check
+  const diplomaYear = parseInt(data.diploma?.passing_year || "", 10);
+  if (!isNaN(diplomaYear) && diplomaYear >= 1970) {
+    if (!isNaN(tenthYear) && (isNaN(twelfthYear) || twelfthYear < 1970) && tenthYear >= 1970) {
+      const gap = diplomaYear - tenthYear - 3;
+      if (gap > 0 && (!data.diploma?.gap_reason || !data.diploma.gap_reason.trim())) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Diploma Gap Reason is required (${gap} year gap detected after 10th)`,
+          path: ["diploma", "gap_reason"],
+        });
+      }
+    } else if (!isNaN(twelfthYear) && twelfthYear >= 1970) {
+      const gap = diplomaYear - twelfthYear - 2;
+      if (gap > 0 && (!data.diploma?.gap_reason || !data.diploma.gap_reason.trim())) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Diploma Gap Reason is required (${gap} year gap detected after 12th)`,
+          path: ["diploma", "gap_reason"],
+        });
+      }
+    }
+  }
+
+  // Graduation gap check
+  const gradYear = parseInt(data.graduation?.passing_year || "", 10);
+  if (!isNaN(gradYear) && gradYear >= 1970 && !isNaN(twelfthYear) && twelfthYear >= 1970) {
+    const gap = gradYear - twelfthYear - 3;
+    if (gap > 0 && (!data.graduation?.gap_reason || !data.graduation.gap_reason.trim())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Graduation Gap Reason is required (${gap} year gap detected after 12th)`,
+        path: ["graduation", "gap_reason"],
+      });
+    }
+  }
+
+  // Postgraduation gap check
+  if (data.graduation?.status === "PG") {
+    const ugYear = parseInt(data.graduation?.undergraduation?.passing_year || "", 10);
+    if (!isNaN(gradYear) && gradYear >= 1970 && !isNaN(ugYear) && ugYear >= 1970) {
+      const gap = gradYear - ugYear - 2;
+      if (gap > 0 && (!data.graduation?.gap_reason || !data.graduation.gap_reason.trim())) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `PG Education Gap Reason is required (${gap} year gap detected after UG)`,
+          path: ["graduation", "gap_reason"],
+        });
+      }
+    }
+  }
 });
 
 export const primarySkillSchema = z.union([

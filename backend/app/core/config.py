@@ -1,4 +1,5 @@
 import os
+from typing import Any
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -6,7 +7,14 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api"
     
     # Database URL: supports Railway PostgreSQL and SQLite
-    DATABASE_URL: str = os.getenv("DATABASE_URL") or os.getenv("DATABASE_PUBLIC_URL", "sqlite:///./matching_engine.db")
+    DATABASE_URL: str = ""
+    DATABASE_PUBLIC_URL: str = ""
+    PGPORT: str = ""
+    PGPASSWORD: str = ""
+
+    def model_post_init(self, __context: Any) -> None:
+        if not self.DATABASE_URL:
+            self.DATABASE_URL = self.DATABASE_PUBLIC_URL or os.getenv("DATABASE_URL") or os.getenv("DATABASE_PUBLIC_URL") or "sqlite:///./matching_engine.db"
     
     # Local Storage Directory for uploaded Job Descriptions
     UPLOAD_DIRECTORY: str = os.getenv("UPLOAD_DIRECTORY", "./storage/job_descriptions")

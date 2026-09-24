@@ -298,16 +298,6 @@ export function CandidateIntakeForm({ onNavigateTab }: CandidateIntakeFormProps)
                 </Typography>
               </Box>
               <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-                <Chip
-                  label="Auto-save Active"
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    fontSize: "0.75rem",
-                    borderColor: "rgba(255, 255, 255, 0.2)",
-                    color: "#94a3b8",
-                  }}
-                />
                 <Button
                   size="small"
                   variant="outlined"

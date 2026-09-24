@@ -18,10 +18,14 @@ interface SelectFieldProps<T extends FieldValues> {
   options: readonly string[];
   required?: boolean;
   disabled?: boolean;
+  helperText?: string;
+  open?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
 }
 
 export function SelectField<T extends FieldValues>({
-  name, control, label, options, required, disabled
+  name, control, label, options, required, disabled, helperText, open, onOpen, onClose
 }: SelectFieldProps<T>) {
   return (
     <Controller
@@ -31,16 +35,27 @@ export function SelectField<T extends FieldValues>({
         const val = field.value ?? "";
         const isCustom = val !== "" && !(options as readonly string[]).includes(val);
 
+        const selectProps: any = {
+          ...field,
+          label,
+          value: val,
+        };
+        if (open !== undefined) selectProps.open = open;
+        if (onOpen !== undefined) selectProps.onOpen = onOpen;
+        if (onClose !== undefined) selectProps.onClose = onClose;
+
         return (
           <FormControl fullWidth error={!!fieldState.error} required={required} disabled={disabled}>
             <InputLabel>{label}</InputLabel>
-            <Select {...field} label={label} value={val}>
+            <Select {...selectProps}>
               {isCustom && <MenuItem value={val}>{val}</MenuItem>}
               {options.map((opt) => (
                 <MenuItem key={opt} value={opt}>{opt}</MenuItem>
               ))}
             </Select>
-            {fieldState.error && <FormHelperText>{fieldState.error.message}</FormHelperText>}
+            {(fieldState.error?.message || helperText) && (
+              <FormHelperText>{fieldState.error?.message ?? helperText}</FormHelperText>
+            )}
           </FormControl>
         );
       }}

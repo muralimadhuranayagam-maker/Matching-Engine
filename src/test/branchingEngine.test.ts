@@ -6,6 +6,7 @@
 
 import { describe, it, expect } from "vitest";
 import { shouldShowLineup, buildPayload } from "../lib/branchingLogic";
+import { educationHistorySchema } from "../schemas/candidateIntakeSchema";
 
 const BASE = {
   personal: {
@@ -329,5 +330,45 @@ describe("buildPayload Cleansing", () => {
     expect(payload.is_submitted).toBe(true);
     expect(payload.personal.first_name).toBe("Test");
     expect(payload.personal.age).toBeGreaterThan(0);
+  });
+});
+
+// ============================================================
+// 10. Education Gap Validation
+// ============================================================
+describe("Education Gap Validation", () => {
+  it("allows 12th passing within 2 years of 10th without gap reason", () => {
+    const res = educationHistorySchema.safeParse({
+      tenth: { status: "State Board", passing_year: "2019" },
+      twelfth: { status: "State Board", passing_year: "2021" },
+      diploma: { status: "Completed" },
+      graduation: { status: "Graduate" },
+    });
+    expect(res.success).toBe(true);
+  });
+
+  it("requires 12th gap reason when 12th passing year is 2022 and 10th is 2019 (1 year gap)", () => {
+    const resWithoutReason = educationHistorySchema.safeParse({
+      tenth: { status: "State Board", passing_year: "2019" },
+      twelfth: { status: "State Board", passing_year: "2022" },
+      diploma: { status: "Completed" },
+      graduation: { status: "Graduate" },
+    });
+    expect(resWithoutReason.success).toBe(false);
+    if (!resWithoutReason.success) {
+      const issue = resWithoutReason.error.issues.find(
+        (i) => i.path.join(".") === "twelfth.gap_reason"
+      );
+      expect(issue).toBeDefined();
+      expect(issue?.message).toContain("1 year gap detected between 10th and 12th");
+    }
+
+    const resWithReason = educationHistorySchema.safeParse({
+      tenth: { status: "State Board", passing_year: "2019" },
+      twelfth: { status: "State Board", passing_year: "2022", gap_reason: "Family Concerns" },
+      diploma: { status: "Completed" },
+      graduation: { status: "Graduate" },
+    });
+    expect(resWithReason.success).toBe(true);
   });
 });

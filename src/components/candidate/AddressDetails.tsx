@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Grid, Typography, FormControlLabel, Checkbox, Box, CircularProgress, Chip } from "@mui/material";
+import { Grid, Typography, FormControlLabel, Checkbox, Box, CircularProgress } from "@mui/material";
 import { type Control, type UseFormSetValue, type UseFormGetValues } from "react-hook-form";
 import type { CandidateIntakeSchema } from "../../schemas/candidateIntakeSchema";
 import { TextInput, AutocompleteField, FormCard } from "./FormHelpers";
@@ -73,10 +73,7 @@ export function AddressDetails({ control, setValue, getValues }: Props) {
       <Grid container spacing={2.5}>
         {/* Current Address */}
         <Grid size={{ xs: 12 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 600 }}>Current Residential Address</Typography>
-            <Chip label="Auto Pincode Enabled (India Post API)" size="small" color="success" variant="outlined" />
-          </Box>
+          <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 600 }}>Current Residential Address</Typography>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6 }}>

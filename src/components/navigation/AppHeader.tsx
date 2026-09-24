@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography, Tabs, Tab, Box, Chip, Container } from "@mui/material";
+import { AppBar, Toolbar, Typography, Tabs, Tab, Box, Container } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import PeopleIcon from "@mui/icons-material/People";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -62,19 +62,6 @@ export function AppHeader({ activeTab, onTabChange }: Props) {
 
           {/* Status & Navigation Tabs */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2.5 }}>
-            <Chip
-              icon={<BoltIcon sx={{ fontSize: "16px !important", color: "#10b981 !important" }} />}
-              label="FastAPI Backend Online"
-              size="small"
-              sx={{
-                bgcolor: "#ecfdf5",
-                color: "#065f46",
-                fontWeight: 600,
-                fontSize: "0.75rem",
-                border: "1px solid #a7f3d0",
-              }}
-            />
-
             <Tabs
               value={activeTab}
               onChange={(_, val) => onTabChange(val)}

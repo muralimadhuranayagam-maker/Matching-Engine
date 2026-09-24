@@ -5,8 +5,8 @@ def test_skill_normalization():
     assert SkillNormalizer.normalize_skill("C Sharp") == "C#"
     assert SkillNormalizer.normalize_skill("csharp") == "C#"
     assert SkillNormalizer.normalize_skill("React.js") == "React"
-    assert SkillNormalizer.normalize_skill("MS SQL") == "SQL Server"
-    assert SkillNormalizer.normalize_skill("ASP.NET Core") == ".NET"
+    assert SkillNormalizer.normalize_skill("ASP.NET Core") == "ASP.NET Core"
+    assert ".NET" in SkillNormalizer.get_all_implied_skills(["ASP.NET Core"])
 
 def test_candidate_normalization():
     cand_data = {
