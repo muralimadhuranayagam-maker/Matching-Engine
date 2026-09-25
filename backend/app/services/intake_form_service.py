@@ -292,6 +292,7 @@ INTAKE_FORM_FIELDS = [
         "options": ["Immediate / Ready to Join", "15 Days", "30 Days", "45 Days", "60 Days"],
         "description": "Candidate's availability or notice period to join a new company",
         "required": True,
+        "depends_on": {"field": "professional_profile.work_status", "value": "EXPERIENCED"}
     },
     {
         "field_path": "professional_profile.english_communication",
@@ -1238,12 +1239,13 @@ class IntakeFormService:
         is_fresher = (work_status == "FRESHER") or (tot_exp == 0 and work_status is not None and work_status != "EXPERIENCED")
 
         for f in INTAKE_FORM_FIELDS:
-            # Experience fields MUST never be evaluated for freshers
+            # Experience and notice period fields MUST never be evaluated for freshers
             if is_fresher and (
                 f["field_path"].startswith("employment_history.")
                 or f["field_path"] in [
                     "professional_profile.total_experience_months",
                     "professional_profile.total_companies",
+                    "professional_profile.notice_period",
                     "salary.current_monthly_salary"
                 ]
             ):
@@ -1318,12 +1320,13 @@ class IntakeFormService:
         is_fresher = (work_status == "FRESHER") or (tot_exp == 0 and work_status is not None and work_status != "EXPERIENCED")
 
         for f in INTAKE_FORM_FIELDS:
-            # Experience fields MUST never be prompted to a fresher
+            # Experience and notice period fields MUST never be prompted to a fresher
             if is_fresher and (
                 f["field_path"].startswith("employment_history.")
                 or f["field_path"] in [
                     "professional_profile.total_experience_months",
                     "professional_profile.total_companies",
+                    "professional_profile.notice_period",
                     "salary.current_monthly_salary"
                 ]
             ):
@@ -1448,13 +1451,14 @@ class IntakeFormService:
             self._set_nested_value(data, "employment_history.current.role", "")
             self._set_nested_value(data, "salary.current_monthly_salary", 0)
 
-        # 3. Fresher invariant: when work_status is FRESHER, ensure experience fields remain cleared
+        # 3. Fresher invariant: when work_status is FRESHER, ensure experience fields remain cleared and notice period is Immediate
         if self._get_nested_value(data, "professional_profile.work_status") == "FRESHER":
             self._set_nested_value(data, "professional_profile.total_experience_months", 0)
             self._set_nested_value(data, "professional_profile.total_companies", 0)
             self._set_nested_value(data, "employment_history.current.company_name", "")
             self._set_nested_value(data, "employment_history.current.role", "")
             self._set_nested_value(data, "salary.current_monthly_salary", 0)
+            self._set_nested_value(data, "professional_profile.notice_period", "Immediate / Ready to Join")
 
         # Record answer audit history
         answers = list(data.get("field_answers", []))
