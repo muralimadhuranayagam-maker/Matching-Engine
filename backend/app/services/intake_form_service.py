@@ -159,7 +159,35 @@ INTAKE_FORM_FIELDS = [
         "required": False,
     },
 
-    # 4. Education History
+    # 4. Education History (Mandatory 10th, 12th, and Higher Education)
+    {
+        "field_path": "education.tenth.passing_year",
+        "display_name": "10th Passing Year",
+        "type": "year",
+        "description": "Year of 10th standard / SSLC / Matriculation completion (e.g. 2018)",
+        "required": True,
+    },
+    {
+        "field_path": "education.tenth.percentage",
+        "display_name": "10th Percentage / Marks",
+        "type": "percentage",
+        "description": "Percentage or marks scored in 10th standard (e.g. 85%)",
+        "required": True,
+    },
+    {
+        "field_path": "education.twelfth.passing_year",
+        "display_name": "12th / Diploma Passing Year",
+        "type": "year",
+        "description": "Year of 12th / HSC / PUC / Diploma completion (e.g. 2020)",
+        "required": True,
+    },
+    {
+        "field_path": "education.twelfth.percentage",
+        "display_name": "12th / Diploma Percentage / Marks",
+        "type": "percentage",
+        "description": "Percentage or marks scored in 12th standard or Diploma (e.g. 80%)",
+        "required": True,
+    },
     {
         "field_path": "education.highest_qualification",
         "display_name": "Highest Qualification",
@@ -180,7 +208,7 @@ INTAKE_FORM_FIELDS = [
         "field_path": "education.graduation.passing_year",
         "display_name": "Graduation Passing Year",
         "type": "year",
-        "description": "Year of graduation completion (e.g. 2022)",
+        "description": "Year of graduation completion (e.g. 2024)",
         "required": False,
         "depends_on": {"field": "education.highest_qualification", "value_not": "10th"}
     },
@@ -923,6 +951,14 @@ class IntakeFormService:
                 return match.group(1)
             return text
 
+        elif ftype == "percentage":
+            # e.g. "85%", "I got 78 percent", "82.5"
+            match = re.search(r'(\d+(?:\.\d+)?)\s*(?:%|percent)?', text, re.IGNORECASE)
+            if match:
+                val = float(match.group(1))
+                return int(val) if val.is_integer() else val
+            return text
+
         elif ftype == "date":
             # Normalize DD-MM-YYYY or DD/MM/YYYY
             match = re.search(r'(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})', text)
@@ -1039,6 +1075,25 @@ class IntakeFormService:
             "education.passing_year": "education.graduation.passing_year",
             "qualification": "education.highest_qualification",
             "highest_qualification": "education.highest_qualification",
+            "10th_passing_year": "education.tenth.passing_year",
+            "tenth_passing_year": "education.tenth.passing_year",
+            "10th_year": "education.tenth.passing_year",
+            "tenth_year": "education.tenth.passing_year",
+            "10th_percentage": "education.tenth.percentage",
+            "tenth_percentage": "education.tenth.percentage",
+            "10th_marks": "education.tenth.percentage",
+            "tenth_marks": "education.tenth.percentage",
+            "12th_passing_year": "education.twelfth.passing_year",
+            "twelfth_passing_year": "education.twelfth.passing_year",
+            "12th_year": "education.twelfth.passing_year",
+            "twelfth_year": "education.twelfth.passing_year",
+            "12th_percentage": "education.twelfth.percentage",
+            "twelfth_percentage": "education.twelfth.percentage",
+            "12th_marks": "education.twelfth.percentage",
+            "twelfth_marks": "education.twelfth.percentage",
+            "diploma_passing_year": "education.twelfth.passing_year",
+            "diploma_year": "education.twelfth.passing_year",
+            "diploma_percentage": "education.twelfth.percentage",
             "work_status": "professional_profile.work_status",
             "workstatus": "professional_profile.work_status",
             "experience.total_years": "professional_profile.total_experience_months",
