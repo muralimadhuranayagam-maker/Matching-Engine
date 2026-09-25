@@ -1312,6 +1312,15 @@ class IntakeFormService:
         if data is None:
             data = self._get_candidate_data(candidate_id)
 
+        # Ensure call disposition is evaluated **before** any field is selected
+        # This runs the LLM‑based logic once per session (or when answers change)
+        if not self._get_nested_value(data, "call_disposition"):
+            disp = self.evaluate_call_disposition(candidate_id, data)
+            self._set_nested_value(data, "call_disposition", disp)
+            # Update cache & persist so downstream logic sees the disposition
+            _CANDIDATE_MEMORY_CACHE[candidate_id] = data
+            _async_persist_candidate(candidate_id, data)
+
         state = self._eval_state_in_memory(candidate_id, data)
 
         # Bulletproof Fresher status check
