@@ -28,18 +28,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API Routers
 from backend.app.api.candidates import router as candidates_router
 from backend.app.api.live_intake import router as live_intake_router
 from backend.app.api.jobs import router as jobs_router
 from backend.app.api.matches import router as matches_router
 from backend.app.api.dashboard import router as dashboard_router
+from backend.app.api.interviews import router as interviews_router
 
 app.include_router(candidates_router, prefix=settings.API_V1_STR)
 app.include_router(live_intake_router, prefix=settings.API_V1_STR)
 app.include_router(jobs_router, prefix=settings.API_V1_STR)
 app.include_router(matches_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router, prefix=settings.API_V1_STR)
+
+# Register interview & intake form routes on all standard URL prefixes for bulletproof AI agent tool integration
+app.include_router(interviews_router, prefix="/api")
+app.include_router(interviews_router, prefix="/api/v1")
+app.include_router(interviews_router, prefix="")
 
 @app.get("/")
 def root():

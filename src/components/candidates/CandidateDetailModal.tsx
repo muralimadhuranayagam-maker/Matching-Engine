@@ -10,7 +10,6 @@ import {
   Paper,
   Chip,
   Divider,
-  Stack,
   Button,
   Tooltip,
 } from "@mui/material";
@@ -26,6 +25,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import CallIcon from "@mui/icons-material/Call";
 import type { CandidateItem } from "../../services/candidateService";
+import { CandidateInterviewSection } from "./CandidateInterviewSection";
 
 interface CandidateDetailModalProps {
   open: boolean;
@@ -104,7 +104,7 @@ export function CandidateDetailModal({ open, onClose, candidate }: CandidateDeta
   const currentEmp = emp.current || {};
   const pref = profile.job_preferences || {};
   const sal = profile.salary || {};
-  const lineup = profile.lineup_scheduled_details || {};
+  const lineup = (profile.lineup_scheduled_details || {}) as any;
 
   const handleCopyJson = () => {
     navigator.clipboard.writeText(JSON.stringify(profile, null, 2));
@@ -272,7 +272,13 @@ export function CandidateDetailModal({ open, onClose, candidate }: CandidateDeta
                 <Grid size={{ xs: 12 }}>
                   <Divider sx={{ my: 1 }} />
                   <Typography variant="caption" sx={{ fontWeight: 700, color: "primary.main" }}>
-                    Graduation ({e.graduation?.status || "UG"})
+                    Graduation ({
+                      e.graduation?.status
+                        ? e.graduation.status
+                        : e.graduation?.passing_year && Number(e.graduation.passing_year) > new Date().getFullYear()
+                          ? `Pursuing - Expected ${e.graduation.passing_year}`
+                          : "UG"
+                    })
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid size={{ xs: 12, sm: 6 }}>
@@ -336,7 +342,7 @@ export function CandidateDetailModal({ open, onClose, candidate }: CandidateDeta
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
                         Primary Technical & Professional Skills:
                       </Typography>
-                      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                         {skillsList.map((skill, idx) => (
                           <Chip
                             key={idx}
@@ -347,7 +353,7 @@ export function CandidateDetailModal({ open, onClose, candidate }: CandidateDeta
                             sx={{ fontWeight: 600 }}
                           />
                         ))}
-                      </Stack>
+                      </Box>
                     </Box>
                   </Grid>
                 )}
@@ -400,6 +406,9 @@ export function CandidateDetailModal({ open, onClose, candidate }: CandidateDeta
                 </Grid>
               </Grid>
             </SectionCard>
+
+            {/* 7. AI Interview Agent Screening & JD Evaluation (MCP) */}
+            <CandidateInterviewSection candidateId={candidate.candidate_id} />
           </Grid>
 
           {/* ============================================================ */}

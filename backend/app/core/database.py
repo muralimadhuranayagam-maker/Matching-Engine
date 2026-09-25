@@ -13,6 +13,10 @@ connect_args = {"check_same_thread": False} if is_sqlite else {}
 engine = create_engine(
     db_url,
     connect_args=connect_args,
+    pool_size=15,
+    max_overflow=25,
+    pool_recycle=1800,
+    pool_timeout=30,
     pool_pre_ping=True
 )
 

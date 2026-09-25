@@ -10,6 +10,16 @@
         "SNAPSERVE_API_KEY": "${SNAPSERVE_API_KEY}",
         "SNAPSERVE_BASE_URL": "https://app.snapserve.ai/api"
       }
+    },
+    "jobshop-interview-agent": {
+      "command": "python",
+      "args": [
+        "-m",
+        "backend.app.mcp.interview_server"
+      ],
+      "env": {
+        "PYTHONPATH": "."
+      }
     }
   }
 }

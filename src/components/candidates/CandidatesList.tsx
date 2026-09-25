@@ -48,10 +48,9 @@ export function CandidatesList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState<CandidateItem | null>(null);
   const [selectedCandidateForDetail, setSelectedCandidateForDetail] = useState<CandidateItem | null>(null);
-  const [isMatchesDrawerOpen, setIsMatchesDrawerOpen] = useState(false);
   const [activeMatchData, setActiveMatchData] = useState<MatchDetailData | null>(null);
+  const [isMatchesDrawerOpen, setIsMatchesDrawerOpen] = useState(false);
   const [isRawJsonOpen, setIsRawJsonOpen] = useState(false);
-  const [rawJsonData, setRawJsonData] = useState<any>(null);
 
   // Multi-selection state
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>([]);
@@ -154,7 +153,6 @@ export function CandidatesList() {
 
   const handleOpenRawJson = (cand: CandidateItem) => {
     setSelectedCandidateForDetail(cand);
-    setRawJsonData(cand.profile);
     setIsRawJsonOpen(true);
   };
 

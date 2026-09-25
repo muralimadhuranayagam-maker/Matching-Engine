@@ -218,13 +218,24 @@ class CandidateNormalizer:
         
         qual = "10th"
         edu = candidate_json.get("education", {})
-        if edu.get("graduation", {}).get("status") in ["UG", "PG", "Completed", "Regular"]:
-            qual = "Graduate"
-        elif edu.get("twelfth", {}).get("status"):
-            qual = "12th"
+        if isinstance(edu, dict):
+            hq = str(edu.get("highest_qualification", "")).lower()
+            if any(k in hq for k in ["post", "pg", "master", "mtech", "mba", "msc", "mca"]):
+                qual = "Post Graduate"
+            elif any(k in hq for k in ["graduate", "degree", "bachelor", "btech", "be", "bcom", "bsc", "bca", "bba", "ug"]):
+                qual = "Graduate"
+            elif "diploma" in hq:
+                qual = "Diploma"
+            elif any(k in hq for k in ["12", "puc", "hsc", "+2", "plus two"]):
+                qual = "12th"
+            elif edu.get("graduation", {}).get("status") in ["UG", "PG", "Completed", "Regular"]:
+                qual = "Graduate"
+            elif edu.get("twelfth", {}).get("status"):
+                qual = "12th"
 
         city = candidate_json.get("address", {}).get("current", {}).get("city") or candidate_json.get("job_preferences", {}).get("job_city") or ""
-        shift = candidate_json.get("job_preferences", {}).get("shift_base") or "Any shift"
+        shift = candidate_json.get("professional_profile", {}).get("shift_preference") or candidate_json.get("job_preferences", {}).get("shift_base") or "Any shift"
+        pref_locs = candidate_json.get("job_preferences", {}).get("preferred_locations", [])
         
         return {
             "candidate_id": candidate_json.get("candidate_id", ""),
@@ -233,6 +244,9 @@ class CandidateNormalizer:
             "qualification": qual,
             "skills": normalized_skills,
             "city": city,
+            "preferred_locations": pref_locs if isinstance(pref_locs, list) else [str(pref_locs)],
             "shift_preference": shift,
-            "work_status": prof.get("work_status", "FRESHER")
+            "work_status": prof.get("work_status", "FRESHER"),
+            "notice_period": prof.get("notice_period", "Immediate"),
+            "english_communication": prof.get("english_communication", "Good")
         }

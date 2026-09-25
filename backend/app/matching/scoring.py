@@ -92,10 +92,15 @@ class ScoringEngine:
         if curr_emp.get("process_name"):
             cand_parts.append(curr_emp["process_name"])
         # Include previous company roles
-        for comp in candidate.get("employment_history", {}).get("previous_companies", []):
-            if comp.get("role"):
-                cand_parts.append(comp["role"])
-        
+        # Include candidate's spoken interview responses if available
+        interview_text = candidate.get("interview_transcript") or " ".join([r.get("answer", "") for r in candidate.get("interview_responses", [])])
+        if interview_text:
+            cand_parts.append(interview_text)
+            # Add any skills explicitly verified in spoken interview responses
+            for req in req_skills_raw:
+                if req.lower() in interview_text.lower() and req not in cand_skill_list:
+                    cand_skill_list.append(req)
+
         cand_resp_text = " ".join(filter(None, cand_parts))
         
         if resp_text and cand_resp_text:
